@@ -13,6 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.3] - 2025-11-10
+### Added
+- **Two-Step Installer**: New `install.sh` bootstrap script + `setup-interactive.sh` for proper interactive configuration
+- **Discord Logging Channel**: Bot can now send action logs to a dedicated Discord channel
+  * Configure via `LOG_CHANNEL_ID` in .env
+  * Logs all economy transactions with admin info and timestamps
+  * Logs bot startup/shutdown events
+- **Python Path Fix**: Added sys.path modification to fix `ModuleNotFoundError` when running bot
+
+### Changed
+- **Installation Method**: Split installer into bootstrap (curl-friendly) and interactive setup
+  * `install.sh`: Downloads files and launches interactive setup
+  * `setup-interactive.sh`: Runs AFTER clone for full interactive configuration
+- Updated bot/main.py to add project root to Python path automatically
+- Enhanced .env.example with LOG_CHANNEL_ID field
+
+### Fixed
+- Fixed `ModuleNotFoundError: No module named 'bot'` when running `python3 bot/main.py`
+- Interactive configuration now works properly (no EOFError)
+
 ## [0.2.2] - 2025-11-10
 ### Fixed
 - Fixed setup.sh to handle non-interactive mode when piped from curl

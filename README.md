@@ -1,6 +1,6 @@
 # Economy Manager V1
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 
@@ -19,20 +19,22 @@
 - 🖱️ **Button Interface**: All actions accessible via buttons (no slash commands needed)
 - 🔒 **Secure**: Role-based access control and SQL injection prevention
 - 📊 **Transaction Logging**: Complete audit trail of all economy changes
-- 🔄 **CoinsEngine Compatible**: Works directly with CoinsEngine shared database
+- � **Discord Logging**: Optional dedicated channel for all bot actions
+- �🔄 **CoinsEngine Compatible**: Works directly with CoinsEngine shared database
 
-## Quick Install (One-Line)
+## Quick Install (New Two-Step Method)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install-bot.sh | bash
+curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install.sh | bash
 ```
 
 This will:
-1. Check prerequisites (Python, Git, pip)
-2. Clone the repository
-3. Install dependencies
-4. Run setup wizard
-5. Start the bot automatically
+1. ✅ Download the bot files
+2. ✅ Install Python dependencies
+3. ✅ Run interactive configuration wizard
+4. ✅ Start the bot
+
+**Why two-step?** The bootstrap script downloads files first, then runs an interactive setup so you can properly configure the database and Discord settings.
 
 ## Manual Installation
 
@@ -41,23 +43,11 @@ This will:
 git clone https://github.com/dronzer-tb/economy-manager-v1.git
 cd economy-manager-v1
 
-# Run the installation script
-./install.sh  # Linux
-```bash
-# Run the setup script
-python setup.py
-```
+# Install dependencies
+pip3 install -r requirements.txt
 
-The setup script will prompt you for:
-- MySQL database credentials (host, port, username, password)
-- Database name
-- Discord bot token
-- Server ID/Guild ID
-
-### Running the Bot
-
-```bash
-python bot/main.py
+# Run interactive setup
+./setup-interactive.sh
 ```
 
 ## Configuration
@@ -65,6 +55,13 @@ python bot/main.py
 Configuration is stored in `.env` file:
 
 ```env
+# Database Configuration
+DB_HOST=localhost
+### Configuration (.env file)
+
+The interactive setup wizard will create a `.env` file with these settings:
+
+```bash
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=3306
@@ -79,7 +76,45 @@ GUILD_ID=your_server_id
 # Optional Configuration
 TABLE_NAME=coinsengine_users
 ADMIN_ROLE_ID=your_admin_role_id
+LOG_CHANNEL_ID=your_log_channel_id  # Optional: Channel for action logs
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/bot.log
 ```
+
+### Running the Bot
+
+After configuration, start the bot:
+
+```bash
+python3 bot/main.py
+```
+
+Or run in background:
+
+```bash
+nohup python3 bot/main.py > logs/bot.log 2>&1 &
+```
+
+## Discord Logging Channel (Optional)
+
+The bot can send action logs to a dedicated Discord channel:
+
+1. Create a channel in your Discord server (e.g., `#economy-logs`)
+2. Enable Developer Mode in Discord (User Settings → Advanced → Developer Mode)
+3. Right-click the channel → Copy ID
+4. Add the channel ID to your `.env` file:
+   ```bash
+   LOG_CHANNEL_ID=1234567890123456789
+   ```
+
+**What gets logged:**
+- ✅ Bot startup/shutdown
+- 💎 Gem additions/removals
+- 🪙 Coin additions/removals
+- 👤 Admin who performed the action
+- ⏰ Timestamp of each transaction
 
 ## Database Schema
 

@@ -64,11 +64,12 @@ class PlayerSelect(ui.Select):
 class EconomyManagementView(ui.View):
     """View with buttons for managing player economy."""
     
-    def __init__(self, player_name: str, player_data: dict, db_manager):
+    def __init__(self, player_name: str, player_data: dict, db_manager, bot=None):
         super().__init__(timeout=300)  # 5 minute timeout
         self.player_name = player_name
         self.player_data = player_data
         self.db_manager = db_manager
+        self.bot = bot  # Bot instance for logging
         
     @ui.button(label="Add Gems", style=discord.ButtonStyle.success, emoji="💎")
     async def add_gems_button(self, interaction: discord.Interaction, button: ui.Button):
@@ -78,7 +79,8 @@ class EconomyManagementView(ui.View):
             player_name=self.player_name,
             currency_type="gems",
             operation="add",
-            db_manager=self.db_manager
+            db_manager=self.db_manager,
+            bot=self.bot
         )
         await interaction.response.send_modal(modal)
         
@@ -90,7 +92,8 @@ class EconomyManagementView(ui.View):
             player_name=self.player_name,
             currency_type="gems",
             operation="remove",
-            db_manager=self.db_manager
+            db_manager=self.db_manager,
+            bot=self.bot
         )
         await interaction.response.send_modal(modal)
         
@@ -102,7 +105,8 @@ class EconomyManagementView(ui.View):
             player_name=self.player_name,
             currency_type="coins",
             operation="add",
-            db_manager=self.db_manager
+            db_manager=self.db_manager,
+            bot=self.bot
         )
         await interaction.response.send_modal(modal)
         
@@ -114,7 +118,8 @@ class EconomyManagementView(ui.View):
             player_name=self.player_name,
             currency_type="coins",
             operation="remove",
-            db_manager=self.db_manager
+            db_manager=self.db_manager,
+            bot=self.bot
         )
         await interaction.response.send_modal(modal)
         
@@ -138,12 +143,13 @@ class CurrencyModal(ui.Modal):
     """Modal for inputting currency amount."""
     
     def __init__(self, title: str, player_name: str, currency_type: str, 
-                 operation: str, db_manager):
+                 operation: str, db_manager, bot=None):
         super().__init__(title=title)
         self.player_name = player_name
         self.currency_type = currency_type
         self.operation = operation
         self.db_manager = db_manager
+        self.bot = bot  # Bot instance for logging
         
         # Add input field
         self.amount_input = ui.TextInput(
@@ -174,7 +180,8 @@ class CurrencyModal(ui.Modal):
                 currency_type=self.currency_type,
                 amount=amount,
                 operation=self.operation,
-                db_manager=self.db_manager
+                db_manager=self.db_manager,
+                bot=self.bot
             )
             
             emoji = "💎" if self.currency_type == "gems" else "🪙"
@@ -199,13 +206,14 @@ class ConfirmationView(ui.View):
     """View for confirming currency transactions."""
     
     def __init__(self, player_name: str, currency_type: str, amount: int,
-                 operation: str, db_manager):
+                 operation: str, db_manager, bot=None):
         super().__init__(timeout=60)
         self.player_name = player_name
         self.currency_type = currency_type
         self.amount = amount
         self.operation = operation
         self.db_manager = db_manager
+        self.bot = bot  # Bot instance for logging
         
     @ui.button(label="Confirm", style=discord.ButtonStyle.success, emoji="✅")
     async def confirm_button(self, interaction: discord.Interaction, button: ui.Button):
@@ -222,6 +230,19 @@ class ConfirmationView(ui.View):
                 content=f"✅ {message}",
                 view=None
             )
+            
+            # Send log to log channel
+            if self.bot:
+                emoji = "💎" if self.currency_type == "gems" else "🪙"
+                action = "Added" if self.operation == "add" else "Removed"
+                log_message = (
+                    f"{emoji} **Economy Update**\n"
+                    f"**Action:** {action} {self.amount:.2f} {self.currency_type}\n"
+                    f"**Player:** {self.player_name}\n"
+                    f"**Admin:** {interaction.user.mention}\n"
+                    f"**Time:** <t:{int(interaction.created_at.timestamp())}:F>"
+                )
+                await self.bot.send_log(log_message)
         else:
             await interaction.response.edit_message(
                 content=f"❌ {message}",

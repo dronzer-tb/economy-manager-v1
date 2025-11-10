@@ -1,5 +1,74 @@
 # Agent Activity Log
 
+## [2025-11-10T09:42:52.000Z] - MAJOR_UPDATE - Version: 0.2.3
+
+**MCP Servers Used**: time
+**Files Modified**: 
+- bot/main.py (fixed module import)
+- bot/utils/config.py (added LOG_CHANNEL_ID)
+- bot/ui/views.py (added logging to transactions)
+- bot/cogs/economy.py (pass bot instance)
+- .env.example (added LOG_CHANNEL_ID)
+- install.sh (created - bootstrap installer)
+- setup-interactive.sh (created - interactive setup)
+- README.md (updated installation instructions)
+- VERSION (0.2.2 → 0.2.3)
+- bot/__init__.py (0.2.2 → 0.2.3)
+- CHANGELOG.md (updated)
+- logs/agent_log.md (this entry)
+
+**Version Change**: 0.2.2 → 0.2.3
+**Tests Run**: N/A (awaiting user testing)
+**Reasoning**: User reported two critical issues: (1) ModuleNotFoundError when running bot, (2) EOFError during curl-piped installation. Implemented comprehensive fixes: added Python path resolution, split installer into two-step process (bootstrap + interactive), and added Discord logging channel feature.
+
+### Changes Made:
+
+**1. Fixed ModuleNotFoundError**
+- Added `sys.path.insert(0, str(project_root))` to bot/main.py
+- Bot can now be run from project root with `python3 bot/main.py`
+- Resolves import path issues automatically
+
+**2. Two-Step Installer System**
+- Created `install.sh`: Bootstrap script (curl-friendly, non-interactive)
+  * Downloads repository
+  * Checks prerequisites
+  * Launches interactive setup
+- Created `setup-interactive.sh`: Full interactive wizard
+  * Prompts for database credentials
+  * Tests database connection
+  * Prompts for Discord configuration
+  * Creates .env file
+  * Offers to start bot
+- Why split? Allows curl pipe for download, then interactive for config
+
+**3. Discord Logging Channel Feature**
+- Added `LOG_CHANNEL_ID` to config.py
+- Bot sends action logs to dedicated Discord channel:
+  * Economy transactions (add/remove gems/coins)
+  * Admin who performed action
+  * Timestamps
+  * Bot startup/shutdown events
+- Updated all UI views to pass bot instance
+- ConfirmationView now calls `bot.send_log()` on successful transactions
+
+**4. Documentation Updates**
+- README.md: New installation instructions, logging channel setup
+- .env.example: Added LOG_CHANNEL_ID field
+- Enhanced feature list
+
+### Bug Fix Details:
+**Error 1**: `ModuleNotFoundError: No module named 'bot'`
+**Root Cause**: Python couldn't find bot package when running from project root
+**Solution**: Added project root to sys.path in main.py
+
+**Error 2**: Setup not working with curl pipe
+**Root Cause**: Can't read interactive input when piped
+**Solution**: Split into bootstrap (download) + interactive (configure) scripts
+
+### Related PRD Section: Installation, Logging, User Experience
+
+---
+
 ## [2025-11-10T08:59:41.000Z] - HOTFIX_RELEASE - Version: 0.2.2
 
 **MCP Servers Used**: time

@@ -24,6 +24,7 @@ class Config:
         # Optional Configuration
         self.TABLE_NAME: str = os.getenv('TABLE_NAME', 'coinsengine_users')
         self.ADMIN_ROLE_ID: Optional[int] = self._get_optional_int('ADMIN_ROLE_ID')
+        self.LOG_CHANNEL_ID: Optional[int] = self._get_optional_int('LOG_CHANNEL_ID')
         
         # Logging
         self.LOG_LEVEL: str = os.getenv('LOG_LEVEL', 'INFO')
