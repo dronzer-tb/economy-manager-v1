@@ -26,7 +26,7 @@ fi
 # Welcome Message
 # ────────────────────────────────────────────────
 echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║      Interactive Configuration Wizard       ║${NC}"
+echo -e "${CYAN}║      Interactive Configuration Wizard        ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
 echo ""
 
