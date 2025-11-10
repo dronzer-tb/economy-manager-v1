@@ -1,5 +1,37 @@
 # Agent Activity Log
 
+## [2025-11-10T08:59:41.000Z] - HOTFIX_RELEASE - Version: 0.2.2
+
+**MCP Servers Used**: time
+**Files Modified**: 
+- setup.sh (fixed)
+- VERSION (0.2.1 → 0.2.2)
+- bot/__init__.py (0.2.1 → 0.2.2)
+- CHANGELOG.md (updated)
+- logs/agent_log.md (this entry)
+
+**Version Change**: 0.2.1 → 0.2.2
+**Tests Run**: N/A (script fix)
+**Reasoning**: User reported EOFError when running setup.sh via curl pipe. The issue was that the script tried to read interactive input when stdin wasn't a terminal. Implemented terminal detection (`[ -t 0 ]`) to handle both interactive and non-interactive modes.
+
+### Changes Made:
+- Added interactive terminal detection to setup.sh
+- Non-interactive mode: Creates .env from template instead of prompting
+- Interactive mode: Runs full Python setup wizard as before
+- Updated directory existence handling for both modes
+- Improved Step 5 to show appropriate instructions based on mode
+
+### Bug Fix Details:
+**Error**: `EOFError: EOF when reading a line` at line 64 of Python setup script
+**Root Cause**: stdin not available when script piped from curl
+**Solution**: Detect if terminal is interactive using `[ -t 0 ]` bash test
+- If interactive: Run full setup wizard
+- If non-interactive: Create .env from template, show manual configuration steps
+
+### Related PRD Section: Installation & Deployment
+
+---
+
 ## [2025-11-10T07:36:34.541Z] - PROJECT_INITIALIZATION - Version: 0.1.0
 
 **MCP Servers Used**: sequential-thinking, time

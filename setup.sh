@@ -47,26 +47,38 @@ echo -e "${GREEN}Step 2/5:${NC} Preparing repository..."
 
 if [ -d "$INSTALL_DIR" ]; then
   echo -e "${YELLOW}⚠️  Directory '$INSTALL_DIR' already exists.${NC}"
-  read -p "Do you want to [U]pdate, [R]einstall, or [C]ancel? (u/r/c): " choice
-  case "$choice" in
-    [Uu]* )
-      echo -e "${GREEN}🔄 Updating existing repository...${NC}"
-      cd "$INSTALL_DIR" && git pull
-      ;;
-    [Rr]* )
-      echo -e "${YELLOW}🧹 Removing and reinstalling...${NC}"
-      rm -rf "$INSTALL_DIR"
-      git clone "$REPO_URL" "$INSTALL_DIR"
-      cd "$INSTALL_DIR"
-      ;;
-    * )
-      echo -e "${RED}❌ Cancelled.${NC}"
-      exit 1
-      ;;
-  esac
+  
+  if [ -t 0 ]; then
+    # Interactive mode - ask user
+    read -p "Do you want to [U]pdate, [R]einstall, or [C]ancel? (u/r/c): " choice
+    case "$choice" in
+      [Uu]* )
+        echo -e "${GREEN}🔄 Updating existing repository...${NC}"
+        cd "$INSTALL_DIR" && git pull
+        ;;
+      [Rr]* )
+        echo -e "${YELLOW}🧹 Removing and reinstalling...${NC}"
+        rm -rf "$INSTALL_DIR"
+        git clone "$REPO_URL" "$INSTALL_DIR"
+        cd "$INSTALL_DIR"
+        ;;
+      * )
+        echo -e "${RED}❌ Cancelled.${NC}"
+        exit 1
+        ;;
+    esac
+  else
+    # Non-interactive mode - update by default
+    echo -e "${GREEN}🔄 Updating existing repository...${NC}"
+    cd "$INSTALL_DIR" && git pull
+  fi
 else
   git clone "$REPO_URL" "$INSTALL_DIR"
-  cd "$INSTALL_DIR"
+  echo -e "${GREEN}✅${NC} Repository cloned successfully"
+  cd "$INSTALL_DIR" || {
+    echo -e "${RED}❌ Failed to enter directory $INSTALL_DIR${NC}"
+    exit 1
+  }
 fi
 
 # ────────────────────────────────────────────────
@@ -81,11 +93,16 @@ echo -e "${GREEN}✅ Dependencies installed successfully${NC}"
 # Step 4: Interactive setup
 # ────────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}Step 4/5:${NC} Running interactive setup..."
+echo -e "${GREEN}Step 4/5:${NC} Configuration setup..."
 echo ""
 
-# Inline Python script for setup.py logic
-python3 << 'PYTHON_SETUP'
+# Check if running interactively or via pipe
+if [ -t 0 ]; then
+  # Interactive mode - run full setup
+  echo "Running interactive configuration..."
+  
+  # Inline Python script for setup.py logic
+  python3 << 'PYTHON_SETUP'
 import os, sys, mysql.connector
 from mysql.connector import Error
 
@@ -171,21 +188,60 @@ def main():
 main()
 PYTHON_SETUP
 
+else
+  # Non-interactive mode (piped from curl) - create example config
+  echo -e "${YELLOW}⚠️  Running in non-interactive mode${NC}"
+  echo "Creating example configuration file..."
+  
+  if [ ! -f ".env" ]; then
+    cp .env.example .env
+    echo -e "${GREEN}✅ Created .env from template${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  IMPORTANT: You must edit .env with your configuration before running the bot!${NC}"
+    echo ""
+    echo "Required steps:"
+    echo "  1. Edit .env file: nano .env"
+    echo "  2. Fill in your database credentials"
+    echo "  3. Add your Discord bot token"
+    echo "  4. Start the bot: python3 bot/main.py"
+  else
+    echo -e "${YELLOW}⚠️  .env already exists, skipping...${NC}"
+  fi
+fi
+
 # ────────────────────────────────────────────────
 # Step 5: Start the bot
 # ────────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}Step 5/5:${NC} Start the bot"
-read -p "Do you want to start the bot now? (Y/n): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-  echo -e "${GREEN}Starting bot...${NC}"
-  python3 bot/main.py
+echo -e "${GREEN}Step 5/5:${NC} Completion"
+echo ""
+
+if [ -t 0 ]; then
+  # Interactive mode - ask to start bot
+  read -p "Do you want to start the bot now? (Y/n): " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+    echo -e "${GREEN}Starting bot...${NC}"
+    python3 bot/main.py
+  else
+    echo -e "${GREEN}✅ Installation complete!${NC}"
+    echo ""
+    echo "To start the bot:"
+    echo "  cd $INSTALL_DIR"
+    echo "  python3 bot/main.py"
+    echo ""
+    echo "Or run in background:"
+    echo "  nohup python3 bot/main.py > bot.log 2>&1 &"
+  fi
 else
+  # Non-interactive mode - show instructions
   echo -e "${GREEN}✅ Installation complete!${NC}"
-  echo "To start the bot later:"
-  echo "  cd $INSTALL_DIR"
-  echo "  python3 bot/main.py"
-  echo "Or run in background:"
+  echo ""
+  echo -e "${YELLOW}Next steps:${NC}"
+  echo "  1. cd $INSTALL_DIR"
+  echo "  2. nano .env  # Configure your database and Discord token"
+  echo "  3. python3 bot/main.py  # Start the bot"
+  echo ""
+  echo "To run in background:"
   echo "  nohup python3 bot/main.py > bot.log 2>&1 &"
 fi

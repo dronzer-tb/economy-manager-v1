@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.2] - 2025-11-10
+### Fixed
+- Fixed setup.sh to handle non-interactive mode when piped from curl
+- Added interactive terminal detection (`[ -t 0 ]` check)
+- Non-interactive mode now creates .env from template instead of prompting
+- Fixed directory existence check to work in both interactive and non-interactive modes
+- Improved user feedback for both installation modes
+
 ## [0.2.1] - 2025-11-10
 ### Fixed
 - Fixed install-bot.sh not changing directory after cloning repository
