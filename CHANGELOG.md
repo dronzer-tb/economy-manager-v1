@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.9] - 2025-11-10
+### Fixed
+- Fixed "Unread result found" error in update_currency function
+- Added buffered cursor to properly handle multiple queries
+- All currency update operations now work correctly
+
 ## [0.2.8] - 2025-11-10
 ### Fixed
 - Fixed player lookup using UUID instead of player name

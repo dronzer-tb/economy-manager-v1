@@ -153,7 +153,7 @@ class DatabaseManager:
             
         try:
             connection = self._get_connection()
-            cursor = connection.cursor()
+            cursor = connection.cursor(buffered=True)
             
             # First, get current balance to check for negative balance
             # Note: Column is 'name' not 'player_name' in coinsengine_users table
