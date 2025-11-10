@@ -31,20 +31,25 @@ class PlayerSelect(ui.Select):
     
     def __init__(self, players: List[dict], callback: Callable):
         self.callback_func = callback
+        self.player_map = {}  # Map UUID to player data
         
         # Create options from players (max 25 options per Discord limitation)
         options = []
         for i, player in enumerate(players[:25]):
             # Use 'name' field from coinsengine_users table
             player_name = player.get('name', player.get('uuid', f'Player {i+1}'))
+            uuid = player.get('uuid', f'unknown_{i}')
             gems = player.get('gems', 0)
             coins = player.get('coins', 0)
+            
+            # Store player data mapped by UUID
+            self.player_map[uuid] = player_name
             
             options.append(
                 discord.SelectOption(
                     label=player_name,
                     description=f"💎 {gems:.2f} gems | 🪙 {coins:.2f} coins",
-                    value=player_name
+                    value=uuid  # Use UUID as value to ensure uniqueness
                 )
             )
             
@@ -57,8 +62,10 @@ class PlayerSelect(ui.Select):
         
     async def callback(self, interaction: discord.Interaction):
         """Handle selection callback."""
-        selected = self.values[0]
-        await self.callback_func(interaction, selected)
+        selected_uuid = self.values[0]
+        # Convert UUID back to player name
+        player_name = self.player_map.get(selected_uuid, selected_uuid)
+        await self.callback_func(interaction, player_name)
 
 
 class EconomyManagementView(ui.View):

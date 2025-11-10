@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.7] - 2025-11-10
+### Fixed
+- **CRITICAL**: Fixed "The specified option value is already used" error with duplicate player names
+- Player dropdown now uses UUID as unique identifier instead of player name
+- Handles databases with multiple players having the same name correctly
+
+### Changed
+- Player selection now uses UUID internally while still displaying player name
+- Added player_map to track UUID to name mapping
+
 ## [0.2.6] - 2025-11-10
 ### Fixed
 - **CRITICAL**: Fixed slash commands not appearing in Discord
