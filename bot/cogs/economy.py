@@ -54,27 +54,30 @@ class Economy(commands.Cog):
                 ephemeral=True
             )
             
-    async def on_player_selected(self, interaction: discord.Interaction, player_name: str):
+    async def on_player_selected(self, interaction: discord.Interaction, player_uuid: str):
         """
         Callback when a player is selected from dropdown.
         
         Args:
             interaction: Discord interaction
-            player_name: Selected player's name
+            player_uuid: Selected player's UUID
         """
         await interaction.response.defer()
         
         try:
-            # Fetch player data
-            player_data = await self.bot.db_manager.get_player_balance(player_name)
+            # Fetch player data using UUID
+            player_data = await self.bot.db_manager.get_player_balance(player_uuid)
             
             if not player_data:
                 await interaction.followup.send(
-                    f"❌ Player '{player_name}' not found.",
+                    f"❌ Player with UUID '{player_uuid}' not found.",
                     ephemeral=True
                 )
                 return
                 
+            # Get player name from database result
+            player_name = player_data.get('name', 'Unknown')
+            
             # Create embed with player info
             embed = create_player_embed(player_name, player_data)
             

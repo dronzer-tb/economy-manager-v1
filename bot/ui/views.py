@@ -63,9 +63,8 @@ class PlayerSelect(ui.Select):
     async def callback(self, interaction: discord.Interaction):
         """Handle selection callback."""
         selected_uuid = self.values[0]
-        # Convert UUID back to player name
-        player_name = self.player_map.get(selected_uuid, selected_uuid)
-        await self.callback_func(interaction, player_name)
+        # Pass UUID to callback - it will be used for database lookup
+        await self.callback_func(interaction, selected_uuid)
 
 
 class EconomyManagementView(ui.View):

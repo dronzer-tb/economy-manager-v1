@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.8] - 2025-11-10
+### Fixed
+- Fixed player lookup using UUID instead of player name
+- Database queries now use UUID as primary identifier
+- Player name retrieved from database result for display
+- Resolves "Player not found" error after dropdown selection
+
 ## [0.2.7] - 2025-11-10
 ### Fixed
 - **CRITICAL**: Fixed "The specified option value is already used" error with duplicate player names
