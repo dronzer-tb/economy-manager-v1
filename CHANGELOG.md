@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.6] - 2025-11-10
+### Fixed
+- **CRITICAL**: Fixed slash commands not appearing in Discord
+- Commands now sync instantly to specific guild (when GUILD_ID is configured)
+- Added proper guild-specific command syncing for immediate availability
+- Global sync fallback for bots without GUILD_ID (note: takes up to 1 hour)
+
+### Changed
+- Improved command sync logging with guild information
+- Better error handling for command sync failures
+
 ## [0.2.5] - 2025-11-10
 ### Fixed
 - **CRITICAL**: Rewrote interactive setup to use bash `read` instead of Python `input()`

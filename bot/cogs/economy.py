@@ -100,10 +100,18 @@ class Economy(commands.Cog):
     async def on_ready(self):
         """Sync slash commands when cog is ready."""
         try:
-            synced = await self.bot.tree.sync()
-            logger.info(f"Synced {len(synced)} command(s)")
+            # Sync to specific guild if configured for instant updates
+            if self.bot.config.GUILD_ID:
+                guild = discord.Object(id=self.bot.config.GUILD_ID)
+                self.bot.tree.copy_global_to(guild=guild)
+                synced = await self.bot.tree.sync(guild=guild)
+                logger.info(f"Synced {len(synced)} command(s) to guild {self.bot.config.GUILD_ID}")
+            else:
+                # Global sync (takes up to 1 hour to propagate)
+                synced = await self.bot.tree.sync()
+                logger.info(f"Synced {len(synced)} command(s) globally (may take up to 1 hour)")
         except Exception as e:
-            logger.error(f"Failed to sync commands: {e}")
+            logger.error(f"Failed to sync commands: {e}", exc_info=True)
 
 async def setup(bot):
     """Setup function to add cog to bot."""
