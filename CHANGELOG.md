@@ -13,6 +13,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.0] - 2025-11-10
+### Added
+- One-line installer script (install-bot.sh) for automated deployment
+- Support for CoinsEngine plugin database structure
+- Decimal value support for gems and coins (DOUBLE type)
+- UUID display in player management interface
+- Automatic database schema validation during setup
+
+### Changed
+- **BREAKING**: Updated database schema to use CoinsEngine format
+  * Table name: `coinsengine_users` (instead of `players`)
+  * Column name: `name` (instead of `player_name`)
+  * Database name: `coinsengine_shared` (default)
+  * Currency types now use DOUBLE instead of INT
+- Updated all database queries to use new column names
+- Modified UI to display decimal values with 2 decimal places
+- Enhanced setup script to validate table structure
+- Updated default configuration values
+
+### Fixed
+- Database column name mismatch (player_name vs name)
+- Integer-only currency values (now supports decimals)
+- Table name configuration defaults
+
 ## [0.1.0] - 2025-11-10
 ### Added
 - Initial project structure (docs/, logs/, bot/, scripts/)

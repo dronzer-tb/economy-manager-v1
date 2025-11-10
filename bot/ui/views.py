@@ -35,14 +35,15 @@ class PlayerSelect(ui.Select):
         # Create options from players (max 25 options per Discord limitation)
         options = []
         for i, player in enumerate(players[:25]):
-            player_name = player.get('player_name', player.get('uuid', f'Player {i+1}'))
+            # Use 'name' field from coinsengine_users table
+            player_name = player.get('name', player.get('uuid', f'Player {i+1}'))
             gems = player.get('gems', 0)
             coins = player.get('coins', 0)
             
             options.append(
                 discord.SelectOption(
                     label=player_name,
-                    description=f"💎 {gems} gems | 🪙 {coins} coins",
+                    description=f"💎 {gems:.2f} gems | 🪙 {coins:.2f} coins",
                     value=player_name
                 )
             )
@@ -157,7 +158,8 @@ class CurrencyModal(ui.Modal):
     async def on_submit(self, interaction: discord.Interaction):
         """Handle modal submission."""
         try:
-            amount = int(self.amount_input.value)
+            # Support decimal values for gems/coins
+            amount = float(self.amount_input.value)
             
             if amount <= 0:
                 await interaction.response.send_message(
@@ -180,7 +182,7 @@ class CurrencyModal(ui.Modal):
             
             await interaction.response.send_message(
                 f"**Confirmation Required**\n"
-                f"{action} **{amount}** {emoji} {self.currency_type} "
+                f"{action} **{amount:.2f}** {emoji} {self.currency_type} "
                 f"{'to' if self.operation == 'add' else 'from'} **{self.player_name}**?",
                 view=confirm_view,
                 ephemeral=True
@@ -188,7 +190,7 @@ class CurrencyModal(ui.Modal):
             
         except ValueError:
             await interaction.response.send_message(
-                "❌ Invalid amount! Please enter a number.",
+                "❌ Invalid amount! Please enter a number (decimals allowed).",
                 ephemeral=True
             )
 
@@ -250,24 +252,25 @@ def create_player_embed(player_name: str, player_data: dict) -> discord.Embed:
     Returns:
         Discord Embed object
     """
-    gems = player_data.get('gems', 0)
-    coins = player_data.get('coins', 0)
+    gems = float(player_data.get('gems', 0))
+    coins = float(player_data.get('coins', 0))
+    uuid = player_data.get('uuid', 'N/A')
     
     embed = discord.Embed(
         title=f"💰 Economy Manager",
-        description=f"**Player:** {player_name}",
+        description=f"**Player:** {player_name}\n**UUID:** `{uuid}`",
         color=discord.Color.gold()
     )
     
     embed.add_field(
         name="💎 Gems",
-        value=f"`{gems:,}`",
+        value=f"`{gems:,.2f}`",
         inline=True
     )
     
     embed.add_field(
         name="🪙 Coins",
-        value=f"`{coins:,}`",
+        value=f"`{coins:,.2f}`",
         inline=True
     )
     

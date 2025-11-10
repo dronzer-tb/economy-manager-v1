@@ -15,14 +15,14 @@ class Config:
         self.DB_PORT: int = int(os.getenv('DB_PORT', '3306'))
         self.DB_USER: str = os.getenv('DB_USER', '')
         self.DB_PASSWORD: str = os.getenv('DB_PASSWORD', '')
-        self.DB_NAME: str = os.getenv('DB_NAME', 'minecraft_economy')
+        self.DB_NAME: str = os.getenv('DB_NAME', 'coinsengine_shared')
         
         # Discord Configuration
         self.DISCORD_TOKEN: str = os.getenv('DISCORD_TOKEN', '')
         self.GUILD_ID: Optional[int] = self._get_optional_int('GUILD_ID')
         
         # Optional Configuration
-        self.TABLE_NAME: str = os.getenv('TABLE_NAME', 'players')
+        self.TABLE_NAME: str = os.getenv('TABLE_NAME', 'coinsengine_users')
         self.ADMIN_ROLE_ID: Optional[int] = self._get_optional_int('ADMIN_ROLE_ID')
         
         # Logging

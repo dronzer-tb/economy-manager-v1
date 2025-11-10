@@ -45,23 +45,39 @@ def test_database_connection(host: str, port: int, user: str, password: str, dat
             
             # Check if players table exists
             cursor = connection.cursor()
-            cursor.execute("SHOW TABLES LIKE 'players'")
+            cursor.execute(f"SHOW TABLES LIKE '{database}'")
             result = cursor.fetchone()
             
             if result:
-                print("✅ 'players' table found")
+                print(f"✅ '{database}' table found")
+                
+                # Check if it has the required columns
+                cursor.execute(f"DESCRIBE {database}")
+                columns = cursor.fetchall()
+                column_names = [col[0] for col in columns]
+                
+                required_cols = ['name', 'uuid', 'gems', 'coins']
+                missing_cols = [col for col in required_cols if col not in column_names]
+                
+                if missing_cols:
+                    print(f"⚠️  Warning: Missing columns: {', '.join(missing_cols)}")
+                else:
+                    print("✅ All required columns present (name, uuid, gems, coins)")
             else:
-                print("⚠️  'players' table not found. Please create it before running the bot.")
-                print("\nExample SQL:")
+                print(f"⚠️  '{database}' table not found. Please create it before running the bot.")
+                print("\nExpected table structure:")
                 print("""
-CREATE TABLE players (
+CREATE TABLE coinsengine_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    player_name VARCHAR(255) NOT NULL,
-    uuid VARCHAR(36),
-    gems INT DEFAULT 0,
-    coins INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    uuid MEDIUMTEXT NOT NULL,
+    name MEDIUMTEXT NOT NULL,
+    gems DOUBLE DEFAULT 0,
+    coins DOUBLE DEFAULT 100,
+    dateCreated BIGINT NOT NULL,
+    last_online BIGINT NOT NULL,
+    settings MEDIUMTEXT NOT NULL,
+    hiddenFromTops TINYINT(1) NOT NULL,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 """)
             
@@ -124,8 +140,8 @@ def main():
     config['db_port'] = get_input("Database Port", "3306")
     config['db_user'] = get_input("Database User")
     config['db_password'] = get_input("Database Password")
-    config['db_name'] = get_input("Database Name", "minecraft_economy")
-    config['table_name'] = get_input("Players Table Name", "players")
+    config['db_name'] = get_input("Database Name", "coinsengine_shared")
+    config['table_name'] = get_input("Users Table Name", "coinsengine_users")
     
     # Test database connection
     if not test_database_connection(

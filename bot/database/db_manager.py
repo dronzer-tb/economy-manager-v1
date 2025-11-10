@@ -71,7 +71,7 @@ class DatabaseManager:
             raise Exception("Database pool not initialized")
         return self.pool.get_connection()
         
-    async def get_all_players(self, table_name: str = 'players') -> List[Dict[str, any]]:
+    async def get_all_players(self, table_name: str = 'coinsengine_users') -> List[Dict[str, any]]:
         """
         Retrieve all players from database.
         
@@ -85,7 +85,7 @@ class DatabaseManager:
             connection = self._get_connection()
             cursor = connection.cursor(dictionary=True)
             
-            query = f"SELECT * FROM {table_name}"
+            query = f"SELECT id, uuid, name, gems, coins, last_online FROM {table_name} ORDER BY name"
             cursor.execute(query)
             players = cursor.fetchall()
             
@@ -99,7 +99,7 @@ class DatabaseManager:
             logger.error(f"Error fetching players: {e}")
             return []
             
-    async def get_player_balance(self, player_name: str, table_name: str = 'players') -> Optional[Dict[str, any]]:
+    async def get_player_balance(self, player_name: str, table_name: str = 'coinsengine_users') -> Optional[Dict[str, any]]:
         """
         Get a specific player's balance.
         
@@ -115,7 +115,8 @@ class DatabaseManager:
             cursor = connection.cursor(dictionary=True)
             
             # Using parameterized query to prevent SQL injection
-            query = f"SELECT * FROM {table_name} WHERE player_name = %s OR uuid = %s"
+            # Note: Column is 'name' not 'player_name' in coinsengine_users table
+            query = f"SELECT id, uuid, name, gems, coins, last_online FROM {table_name} WHERE name = %s OR uuid = %s"
             cursor.execute(query, (player_name, player_name))
             player = cursor.fetchone()
             
@@ -129,15 +130,15 @@ class DatabaseManager:
             return None
             
     async def update_currency(self, player_name: str, currency_type: str, 
-                            amount: int, operation: str = 'add',
-                            table_name: str = 'players') -> Tuple[bool, str]:
+                            amount: float, operation: str = 'add',
+                            table_name: str = 'coinsengine_users') -> Tuple[bool, str]:
         """
         Update player's currency (gems or coins).
         
         Args:
             player_name: Player's name or UUID
             currency_type: 'gems' or 'coins'
-            amount: Amount to add/remove
+            amount: Amount to add/remove (supports decimals)
             operation: 'add' or 'remove'
             table_name: Name of the players table
             
@@ -155,8 +156,9 @@ class DatabaseManager:
             cursor = connection.cursor()
             
             # First, get current balance to check for negative balance
+            # Note: Column is 'name' not 'player_name' in coinsengine_users table
             cursor.execute(
-                f"SELECT {currency_type} FROM {table_name} WHERE player_name = %s OR uuid = %s",
+                f"SELECT {currency_type} FROM {table_name} WHERE name = %s OR uuid = %s",
                 (player_name, player_name)
             )
             result = cursor.fetchone()
@@ -166,7 +168,7 @@ class DatabaseManager:
                 connection.close()
                 return False, "Player not found."
                 
-            current_balance = result[0]
+            current_balance = float(result[0])
             
             # Calculate new balance
             if operation == 'add':
@@ -176,14 +178,14 @@ class DatabaseManager:
                 if new_balance < 0:
                     cursor.close()
                     connection.close()
-                    return False, f"Insufficient balance. Current: {current_balance}, Trying to remove: {amount}"
+                    return False, f"Insufficient balance. Current: {current_balance:.2f}, Trying to remove: {amount:.2f}"
             else:
                 cursor.close()
                 connection.close()
                 return False, "Invalid operation. Use 'add' or 'remove'."
                 
-            # Update database
-            query = f"UPDATE {table_name} SET {currency_type} = %s WHERE player_name = %s OR uuid = %s"
+            # Update database - use 'name' column instead of 'player_name'
+            query = f"UPDATE {table_name} SET {currency_type} = %s WHERE name = %s OR uuid = %s"
             cursor.execute(query, (new_balance, player_name, player_name))
             connection.commit()
             
@@ -193,7 +195,7 @@ class DatabaseManager:
             
             if affected_rows > 0:
                 logger.info(f"Updated {player_name}: {operation} {amount} {currency_type}")
-                return True, f"Successfully {operation}ed {amount} {currency_type}. New balance: {new_balance}"
+                return True, f"Successfully {operation}ed {amount:.2f} {currency_type}. New balance: {new_balance:.2f}"
             else:
                 return False, "No rows updated."
                 

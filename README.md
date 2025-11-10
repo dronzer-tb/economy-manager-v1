@@ -1,6 +1,6 @@
 # Economy Manager V1
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 
@@ -8,26 +8,33 @@
 
 **Economy Manager V1** is a Discord bot designed for Minecraft server administrators to manage player economies (gems and coins) through an intuitive button-based interface. No command syntax required—all interactions are driven by interactive buttons and dropdowns.
 
+**Compatible with CoinsEngine plugin databases!**
+
 ## Features
 
 - 🎮 **Player Selection**: Searchable dropdown menu with all players from your MySQL database
-- 💎 **View Balances**: Display player's current gems and coins
+- 💎 **View Balances**: Display player's current gems and coins (supports decimal values)
 - ➕ **Add Currency**: Easily add gems or coins to player accounts
 - ➖ **Remove Currency**: Remove gems or coins with balance validation
 - 🖱️ **Button Interface**: All actions accessible via buttons (no slash commands needed)
 - 🔒 **Secure**: Role-based access control and SQL injection prevention
 - 📊 **Transaction Logging**: Complete audit trail of all economy changes
+- 🔄 **CoinsEngine Compatible**: Works directly with CoinsEngine shared database
 
-## Requirements
+## Quick Install (One-Line)
 
-- Python 3.8 or higher
-- MySQL database
-- Discord Bot Token
-- Discord Server with admin permissions
+```bash
+curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install-bot.sh | bash
+```
 
-## Quick Start
+This will:
+1. Check prerequisites (Python, Git, pip)
+2. Clone the repository
+3. Install dependencies
+4. Run setup wizard
+5. Start the bot automatically
 
-### Installation
+## Manual Installation
 
 ```bash
 # Clone the repository
@@ -63,32 +70,41 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=your_username
 DB_PASSWORD=your_password
-DB_NAME=minecraft_economy
+DB_NAME=coinsengine_shared
 
 # Discord Configuration
 DISCORD_TOKEN=your_bot_token
 GUILD_ID=your_server_id
 
 # Optional Configuration
-TABLE_NAME=players
+TABLE_NAME=coinsengine_users
 ADMIN_ROLE_ID=your_admin_role_id
 ```
 
 ## Database Schema
 
-Your MySQL database should have a table with the following structure:
+This bot is designed to work with the **CoinsEngine** plugin database structure:
 
 ```sql
-CREATE TABLE players (
+CREATE TABLE coinsengine_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    player_name VARCHAR(255) NOT NULL,
-    uuid VARCHAR(36),
-    gems INT DEFAULT 0,
-    coins INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    uuid MEDIUMTEXT NOT NULL,
+    name MEDIUMTEXT NOT NULL,
+    dateCreated BIGINT NOT NULL,
+    last_online BIGINT NOT NULL,
+    settings MEDIUMTEXT NOT NULL,
+    hiddenFromTops TINYINT(1) NOT NULL,
+    gems DOUBLE DEFAULT 0,
+    coins DOUBLE DEFAULT 100,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
+
+The bot uses the following columns:
+- `name` - Player's username
+- `uuid` - Player's UUID
+- `gems` - Gem balance (DOUBLE, supports decimals)
+- `coins` - Coin balance (DOUBLE, supports decimals)
 
 ## Usage
 
@@ -152,10 +168,18 @@ MIT License - See LICENSE file for details
 
 ## Version
 
-Current Version: **0.1.0** (Initial Setup)
+Current Version: **0.2.0** (CoinsEngine Compatible)
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
+## What's New in 0.2.0
+
+- ✅ **CoinsEngine Database Support**: Now compatible with CoinsEngine plugin databases
+- ✅ **Decimal Currency Support**: Supports decimal values for gems and coins
+- ✅ **One-Line Installer**: Easy installation with automated setup
+- ✅ **Improved Table Detection**: Automatically validates database schema
+- ✅ **UUID Display**: Shows player UUIDs in the management interface
+
 ---
 
-**Status**: 🚧 In Development - Initial setup phase
+**Status**: ✅ Production Ready - CoinsEngine Compatible

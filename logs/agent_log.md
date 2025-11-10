@@ -174,3 +174,108 @@ economy-manager/
 
 ---
 
+## [2025-11-10T08:24:04.916Z] - DATABASE_SCHEMA_UPDATE - Version: 0.1.0 → 0.2.0
+
+**MCP Servers Used**: time, sequential-thinking
+**Files Modified**: 
+- bot/database/db_manager.py (updated all queries for new schema)
+- bot/ui/views.py (updated to use 'name' field and decimal support)
+- bot/utils/config.py (updated default values)
+- .env.example (updated defaults)
+- scripts/setup.py (updated table validation)
+- install-bot.sh (created - one-line installer)
+- VERSION (0.1.0 → 0.2.0)
+- CHANGELOG.md (added 0.2.0 entry)
+- README.md (updated for CoinsEngine compatibility)
+- QUICKSTART.md (updated installation instructions)
+
+**Version Change**: 0.1.0 → 0.2.0 (MINOR - Breaking change, new features)
+**Tests Run**: Manual verification required
+**Reasoning**: Updated bot to work with user's actual CoinsEngine database structure. This is a breaking change as the database schema is different from original design, hence MINOR version bump. Added one-line installer for ease of deployment.
+
+### Changes Made:
+
+#### Database Schema Adaptation:
+- Changed default table name from `players` to `coinsengine_users`
+- Changed default database name from `minecraft_economy` to `coinsengine_shared`
+- Updated all queries to use `name` column instead of `player_name`
+- Changed currency data type support from INT to DOUBLE (decimal support)
+- Added UUID display in player management interface
+- Updated table validation in setup script
+
+#### Database Manager (db_manager.py):
+- `get_all_players()`: Now queries `name`, `uuid`, `gems`, `coins` specifically
+- `get_player_balance()`: Uses `name` field instead of `player_name`
+- `update_currency()`: Now supports DOUBLE/float values, updated to use `name` column
+- All queries adapted to CoinsEngine database structure
+- Added decimal formatting with 2 decimal places
+
+#### UI Components (views.py):
+- Updated PlayerSelect to use `player.get('name')` instead of `player.get('player_name')`
+- Modified currency display to show decimals (e.g., "100.50" instead of "100")
+- Updated modal to accept float input instead of int
+- Added UUID display in player embed
+- Enhanced error message for decimal value support
+
+#### Configuration Updates:
+- Updated default `DB_NAME` to `coinsengine_shared`
+- Updated default `TABLE_NAME` to `coinsengine_users`
+- .env.example now reflects CoinsEngine defaults
+
+#### Installation Improvements:
+- Created `install-bot.sh` - one-line installer script
+- Automated installation flow: clone → check deps → setup → start
+- Added prerequisite checking (Python, Git, pip)
+- Interactive prompts for configuration
+- Auto-start option after setup
+- Color-coded output for better UX
+
+#### Documentation Updates:
+- README: Added one-line install command, CoinsEngine compatibility note
+- QUICKSTART: Updated with automated installer instructions
+- Database schema documentation updated to reflect CoinsEngine structure
+- Added example with user's actual database configuration
+
+### CoinsEngine Database Structure:
+```
+Table: coinsengine_users
+Required Columns:
+- id (INT, auto_increment)
+- uuid (MEDIUMTEXT)
+- name (MEDIUMTEXT) - Player username
+- gems (DOUBLE) - Gem balance
+- coins (DOUBLE) - Coin balance
+- dateCreated (BIGINT)
+- last_online (BIGINT)
+- settings (MEDIUMTEXT)
+- hiddenFromTops (TINYINT)
+- last_modified (TIMESTAMP)
+```
+
+### Related PRD Section: 
+- Section 3: All features adapted to new database schema
+- Section 4.1: Enhanced installation script (one-line installer)
+- Section 5.1: Database connection updated for CoinsEngine
+- Section 5.3: Database schema assumptions updated
+
+### Breaking Changes:
+- Database table name changed: `players` → `coinsengine_users`
+- Database name changed: `minecraft_economy` → `coinsengine_shared`
+- Column name changed: `player_name` → `name`
+- Currency type changed: INT → DOUBLE (supports decimals)
+
+### Migration Notes:
+- Users with existing `players` table need to update `TABLE_NAME` in .env
+- All currency values now support decimal places
+- Backward compatible with custom table names via configuration
+
+### Next Steps:
+1. User should upload install-bot.sh to GitHub repository root
+2. Test one-line installer: `curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install-bot.sh | bash`
+3. Verify bot connects to CoinsEngine database
+4. Test all CRUD operations (view, add, remove gems/coins)
+5. Verify decimal values display correctly
+6. Consider adding batch operations in future version
+
+---
+
