@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.5] - 2025-11-10
+### Fixed
+- **CRITICAL**: Rewrote interactive setup to use bash `read` instead of Python `input()`
+- Eliminated all EOFError issues by avoiding Python heredoc stdin conflicts
+- Database connection testing now works correctly
+- All prompts now display and accept input properly
+
+### Changed
+- Interactive configuration now uses native bash for all user input
+- Python only used for database testing and .env file writing (no stdin required)
+- Improved error handling and user feedback
+
 ## [0.2.4] - 2025-11-10
 ### Fixed
 - Resolved `EOFError` during installer when run via `curl | bash` by reattaching to `/dev/tty`

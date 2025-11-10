@@ -1,5 +1,39 @@
 # Agent Activity Log
 
+## [2025-11-10T10:09:24.000Z] - CRITICAL_FIX - Version: 0.2.5
+
+**MCP Servers Used**: time
+**Files Modified**: 
+- setup-interactive.sh (complete rewrite of input handling)
+- VERSION (0.2.4 → 0.2.5)
+- bot/__init__.py (0.2.4 → 0.2.5)
+- CHANGELOG.md (added 0.2.5 entry)
+- logs/agent_log.md (this entry)
+
+**Version Change**: 0.2.4 → 0.2.5
+**Tests Run**: Manual testing required
+**Reasoning**: Python's `input()` doesn't work in heredoc even with /dev/tty redirection. Complete rewrite to use bash `read` for all user input, Python only for non-interactive tasks (database testing, file writing).
+
+### Changes Made:
+- Replaced all Python `input()` calls with bash `read` commands
+- Database prompts: bash `read` with defaults
+- Password input: bash `read -sp` (silent mode)
+- Database connection test: Python (no stdin needed)
+- .env file writing: Python (no stdin needed)
+- Removed 130+ lines of problematic Python input code
+- Clean separation: bash for interaction, Python for logic
+
+### Technical Details:
+**Root Cause**: Python heredoc stdin conflicts
+**Solution**: Use bash for ALL interactive input
+- `read -p "prompt [default]: " VAR` for normal input
+- `read -sp "prompt: " VAR` for passwords
+- Pass bash variables to Python via shell expansion in heredoc
+
+### Related PRD Section: Installation & Deployment
+
+---
+
 ## [2025-11-10T09:49:39.000Z] - BUGFIX_PLANNING - Version: Pending 0.2.4
 
 **MCP Servers Used**: time, sequential-thinking
