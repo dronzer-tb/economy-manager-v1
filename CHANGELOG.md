@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.4.0] - 2025-11-10 - MAJOR UPGRADE 🚀
+### Added
+- **Pagination System**: Previous/Next buttons to navigate through all players
+- **Fuzzy Search**: Smart search that finds players even with typos or partial names
+- **Page Counter**: Shows current page and total pages
+- **Search Results Preview**: Shows top 5 matches sorted by relevance
+- **Better UX**: Clear instructions and player count display
+
+### Changed
+- Search is now case-insensitive and uses fuzzy matching (40% similarity threshold)
+- Search results sorted by relevance (exact match → contains → fuzzy match)
+- Pagination shows players in chunks of 25 with easy navigation
+- Updated UI messages to guide users on available features
+
+### Technical
+- Added `difflib.SequenceMatcher` for fuzzy string matching
+- Implemented dynamic pagination with page state management
+- Disabled button used as page counter display
+
 ## [0.3.2] - 2025-11-10
 ### Fixed
 - Fixed syntax error in views.py (duplicate function definition)

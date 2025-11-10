@@ -46,11 +46,10 @@ class Economy(commands.Cog):
             
             message = f"**Economy Manager**\n"
             message += f"📊 Total Players: {total_players}\n"
-            message += f"📋 Showing: First {shown_players} players (A-Z)\n"
+            message += f"📋 Showing: 1-{shown_players}\n\n"
+            message += f"🔍 **Search**: Fuzzy search enabled - type partial names\n"
             if total_players > 25:
-                message += f"🔍 Use the **Search Player** button to find others"
-            else:
-                message += f"Select a player from the dropdown:"
+                message += f"⬅️➡️ **Navigate**: Use Previous/Next buttons to browse all players"
             
             await interaction.followup.send(
                 message,

@@ -8,25 +8,80 @@ import discord
 from discord import ui
 from typing import List, Optional, Callable
 import logging
+from difflib import SequenceMatcher
 
 logger = logging.getLogger('economy_bot')
 
 class PlayerSelectView(ui.View):
-    """View for selecting a player from dropdown or search."""
+    """View for selecting a player from dropdown with pagination and search."""
     
-    def __init__(self, players: List[dict], callback: Callable):
+    def __init__(self, players: List[dict], callback: Callable, page: int = 0):
         super().__init__(timeout=300)
         self.callback_func = callback
-        self.all_players = players  # Store all players for search
+        self.all_players = players  # Store all players
+        self.page = page
+        self.page_size = 25
         
-        # Add player select dropdown (first 25)
-        self.add_item(PlayerSelect(players, self.on_player_select))
+        # Calculate pagination
+        total_pages = (len(players) - 1) // self.page_size + 1 if players else 0
+        start_idx = page * self.page_size
+        end_idx = start_idx + self.page_size
+        current_players = players[start_idx:end_idx]
+        
+        # Add player select dropdown
+        self.add_item(PlayerSelect(current_players, self.on_player_select))
+        
+        # Add Previous button if not on first page
+        if page > 0:
+            prev_button = ui.Button(label="Previous", style=discord.ButtonStyle.secondary, emoji="⬅️")
+            prev_button.callback = self.previous_page
+            self.add_item(prev_button)
+        
+        # Add Next button if there are more pages
+        if end_idx < len(players):
+            next_button = ui.Button(label="Next", style=discord.ButtonStyle.secondary, emoji="➡️")
+            next_button.callback = self.next_page
+            self.add_item(next_button)
+        
+        # Page info (disabled button as label)
+        page_info = ui.Button(
+            label=f"Page {page + 1}/{total_pages}",
+            style=discord.ButtonStyle.secondary,
+            disabled=True
+        )
+        self.add_item(page_info)
         
     async def on_player_select(self, interaction: discord.Interaction, selected_player: str):
         """Handle player selection."""
         await self.callback_func(interaction, selected_player)
     
-    @ui.button(label="Search Player", style=discord.ButtonStyle.primary, emoji="🔍")
+    async def previous_page(self, interaction: discord.Interaction):
+        """Go to previous page."""
+        new_view = PlayerSelectView(self.all_players, self.callback_func, self.page - 1)
+        
+        total_players = len(self.all_players)
+        start_idx = (self.page - 1) * self.page_size + 1
+        end_idx = min(self.page * self.page_size, total_players)
+        
+        await interaction.response.edit_message(
+            content=f"**Economy Manager**\n📊 Total Players: {total_players}\n📋 Showing: {start_idx}-{end_idx}",
+            view=new_view
+        )
+    
+    async def next_page(self, interaction: discord.Interaction):
+        """Go to next page."""
+        new_view = PlayerSelectView(self.all_players, self.callback_func, self.page + 1)
+        
+        total_players = len(self.all_players)
+        start_idx = (self.page + 1) * self.page_size + 1
+        end_idx = min((self.page + 2) * self.page_size, total_players)
+        
+        await interaction.response.edit_message(
+            content=f"**Economy Manager**\n📊 Total Players: {total_players}\n📋 Showing: {start_idx}-{end_idx}",
+            view=new_view
+        )
+    
+    @ui.button(label="Search Player", style=discord.ButtonStyle.primary, emoji="🔍", row=4)
     async def search_button(self, interaction: discord.Interaction, button: ui.Button):
         """Button to search for a player by name."""
         modal = PlayerSearchModal(self.all_players, self.callback_func)
@@ -279,7 +334,7 @@ class ConfirmationView(ui.View):
 
 
 class PlayerSearchModal(ui.Modal):
-    """Modal for searching players by name."""
+    """Modal for searching players by name with fuzzy matching."""
     
     def __init__(self, all_players: List[dict], callback: Callable):
         super().__init__(title="Search Player")
@@ -289,28 +344,55 @@ class PlayerSearchModal(ui.Modal):
         # Add search input field
         self.search_input = ui.TextInput(
             label="Player Name",
-            placeholder="Enter player name to search...",
+            placeholder="Enter player name (fuzzy search enabled)...",
             required=True,
             min_length=1,
             max_length=50
         )
         self.add_item(self.search_input)
     
+    def fuzzy_match_score(self, search_term: str, player_name: str) -> float:
+        """
+        Calculate fuzzy match score between search term and player name.
+        Returns a score between 0 and 1, where 1 is perfect match.
+        """
+        search_lower = search_term.lower()
+        name_lower = player_name.lower()
+        
+        # Exact match gets highest score
+        if search_lower == name_lower:
+            return 1.0
+        
+        # Contains gets high score
+        if search_lower in name_lower:
+            return 0.9
+        
+        # Use SequenceMatcher for fuzzy matching
+        return SequenceMatcher(None, search_lower, name_lower).ratio()
+    
     async def on_submit(self, interaction: discord.Interaction):
-        """Handle search submission."""
+        """Handle search submission with fuzzy matching."""
         await interaction.response.defer()
         
-        search_term = self.search_input.value.lower().strip()
+        search_term = self.search_input.value.strip()
         
-        # Search for players matching the search term
-        matches = [
-            player for player in self.all_players
-            if search_term in player.get('name', '').lower()
-        ]
+        # Calculate fuzzy match scores for all players
+        scored_players = []
+        for player in self.all_players:
+            player_name = player.get('name', '')
+            score = self.fuzzy_match_score(search_term, player_name)
+            
+            # Only include players with score > 0.4 (40% similarity)
+            if score > 0.4:
+                scored_players.append((score, player))
+        
+        # Sort by score (highest first)
+        scored_players.sort(key=lambda x: x[0], reverse=True)
+        matches = [player for score, player in scored_players]
         
         if not matches:
             await interaction.followup.send(
-                f"❌ No players found matching '{self.search_input.value}'",
+                f"❌ No players found matching '{self.search_input.value}'\nTry a different search term or use pagination.",
                 ephemeral=True
             )
             return
@@ -320,10 +402,19 @@ class PlayerSearchModal(ui.Modal):
             player_uuid = matches[0].get('uuid')
             await self.callback_func(interaction, player_uuid)
         else:
-            # Multiple matches, show dropdown with results
+            # Multiple matches, show dropdown with results (sorted by relevance)
             view = PlayerSelectView(matches, self.callback_func)
+            
+            # Show top 5 match names as preview
+            preview_names = [m.get('name', 'Unknown') for m in matches[:5]]
+            preview_text = "\n".join([f"• {name}" for name in preview_names])
+            if len(matches) > 5:
+                preview_text += f"\n• ... and {len(matches) - 5} more"
+            
             await interaction.followup.send(
-                f"**Search Results** ({len(matches)} players found)\nSelect a player:",
+                f"**Search Results** ({len(matches)} players found)\n"
+                f"Results sorted by relevance:\n{preview_text}\n\n"
+                f"Select a player from the dropdown:",
                 view=view,
                 ephemeral=True
             )
