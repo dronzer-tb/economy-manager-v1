@@ -31,14 +31,11 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/economy-manager.git
+git clone https://github.com/dronzer-tb/economy-manager-v1.git
 cd economy-manager
 
 # Run the installation script
 ./install.sh  # Linux/macOS
-# or
-install.bat   # Windows
-```
 
 ### Setup
 
