@@ -15,6 +15,13 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
+# Ensure we are running in an interactive terminal
+if [ ! -t 0 ]; then
+    echo -e "${RED}ERROR:${NC} This setup wizard requires an interactive terminal with user input."
+    echo "Please run: ./setup-interactive.sh" >&2
+    exit 1
+fi
+
 # ────────────────────────────────────────────────
 # Welcome Message
 # ────────────────────────────────────────────────

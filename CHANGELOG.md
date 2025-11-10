@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.4] - 2025-11-10
+### Fixed
+- Resolved `EOFError` during installer when run via `curl | bash` by reattaching to `/dev/tty`
+- Added guard to `setup-interactive.sh` requiring an interactive terminal
+
+### Changed
+- Bootstrap installer now warns and provides manual instructions if `/dev/tty` unavailable
+- README clarifies how the installer behaves in non-interactive environments
+
 ## [0.2.3] - 2025-11-10
 ### Added
 - **Two-Step Installer**: New `install.sh` bootstrap script + `setup-interactive.sh` for proper interactive configuration

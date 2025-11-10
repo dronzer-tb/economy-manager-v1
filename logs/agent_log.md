@@ -1,5 +1,50 @@
 # Agent Activity Log
 
+## [2025-11-10T09:49:39.000Z] - BUGFIX_PLANNING - Version: Pending 0.2.4
+
+**MCP Servers Used**: time, sequential-thinking
+**Files Modified**: None (planning phase)
+**Version Change**: Pending
+**Tests Run**: N/A (planning)
+**Reasoning**: Investigating installer EOFError when bootstrap script is piped via curl. Need to ensure interactive setup gains access to TTY and update documentation/version accordingly.
+
+### Planned Actions:
+- Update `install.sh` to rebind stdin/stdout to `/dev/tty` when non-interactive
+- Ensure fallback instructions if `/dev/tty` unavailable
+- Refresh docs (`README.md`) to describe installer behaviour
+- Bump patch version to 0.2.4 and update changelog
+- Log changes and commit
+
+### Related PRD Section: Installation & Deployment
+
+---
+
+## [2025-11-10T09:51:36.000Z] - BUGFIX_COMPLETE - Version: 0.2.4
+
+**MCP Servers Used**: time
+**Files Modified**: 
+- install.sh (TTY handling for interactive setup)
+- setup-interactive.sh (interactive terminal guard)
+- README.md (installer behaviour note)
+- VERSION (0.2.3 → 0.2.4)
+- bot/__init__.py (0.2.3 → 0.2.4)
+- CHANGELOG.md (added 0.2.4 entry)
+- logs/agent_log.md (this entry)
+
+**Version Change**: 0.2.3 → 0.2.4
+**Tests Run**: Not available (no automated test suite)
+**Reasoning**: Ensured bootstrap installer can present interactive prompts when executed via `curl | bash`, preventing EOFError and guiding users when no terminal is available.
+
+### Changes Made:
+- Reattached installer stdin/stdout/stderr to `/dev/tty` when running non-interactively
+- Added `/dev/tty` fallback instructions if no terminal can be acquired
+- Guarded interactive setup script against non-interactive invocation
+- Updated documentation and semantic versioning metadata
+
+### Related PRD Section: Installation & Deployment
+
+---
+
 ## [2025-11-10T09:42:52.000Z] - MAJOR_UPDATE - Version: 0.2.3
 
 **MCP Servers Used**: time

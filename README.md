@@ -36,6 +36,8 @@ This will:
 
 **Why two-step?** The bootstrap script downloads files first, then runs an interactive setup so you can properly configure the database and Discord settings.
 
+> ℹ️ When executed via `curl | bash`, the bootstrap script automatically reconnects to your terminal so the wizard can prompt for input safely. If a terminal is not available, it will instruct you to run `./setup-interactive.sh` manually.
+
 ## Manual Installation
 
 ```bash

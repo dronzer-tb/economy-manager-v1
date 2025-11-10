@@ -86,6 +86,21 @@ echo ""
 # Make interactive installer executable
 chmod +x setup-interactive.sh
 
+# Reattach to controlling terminal if script is running non-interactively
+if [ ! -t 0 ]; then
+  if [ -r /dev/tty ]; then
+    echo -e "${YELLOW}⚠️  Detected non-interactive execution (e.g., curl pipe). Switching to direct terminal for prompts...${NC}" > /dev/tty
+    exec </dev/tty
+    exec >/dev/tty
+    exec 2>/dev/tty
+  else
+    echo -e "${RED}ERROR:${NC} Unable to acquire an interactive terminal."
+    echo "Please run the following command manually after this script finishes:"
+    echo "  cd $INSTALL_DIR && ./setup-interactive.sh"
+    exit 1
+  fi
+fi
+
 # Run the interactive installer
 ./setup-interactive.sh
 
