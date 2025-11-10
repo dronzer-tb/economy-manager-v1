@@ -70,9 +70,10 @@ class PlayerSelect(ui.Select):
 class EconomyManagementView(ui.View):
     """View with buttons for managing player economy."""
     
-    def __init__(self, player_name: str, player_data: dict, db_manager, bot=None):
+    def __init__(self, player_name: str, player_data: dict, db_manager, bot=None, player_uuid: str = None):
         super().__init__(timeout=300)  # 5 minute timeout
         self.player_name = player_name
+        self.player_uuid = player_uuid or player_data.get('uuid', player_name)  # Fallback to name if no UUID
         self.player_data = player_data
         self.db_manager = db_manager
         self.bot = bot  # Bot instance for logging
@@ -132,10 +133,12 @@ class EconomyManagementView(ui.View):
     @ui.button(label="Refresh", style=discord.ButtonStyle.primary, emoji="🔄")
     async def refresh_button(self, interaction: discord.Interaction, button: ui.Button):
         """Button to refresh player data."""
-        # Fetch updated player data
-        player_data = await self.db_manager.get_player_balance(self.player_name)
+        # Fetch updated player data using UUID
+        player_data = await self.db_manager.get_player_balance(self.player_uuid)
         
         if player_data:
+            # Update player name in case it changed
+            self.player_name = player_data.get('name', self.player_name)
             embed = create_player_embed(self.player_name, player_data)
             await interaction.response.edit_message(embed=embed, view=self)
         else:

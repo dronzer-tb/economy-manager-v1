@@ -81,8 +81,8 @@ class Economy(commands.Cog):
             # Create embed with player info
             embed = create_player_embed(player_name, player_data)
             
-            # Create management view with buttons (pass bot instance for logging)
-            view = EconomyManagementView(player_name, player_data, self.bot.db_manager, self.bot)
+            # Create management view with buttons (pass bot instance for logging and UUID for refresh)
+            view = EconomyManagementView(player_name, player_data, self.bot.db_manager, self.bot, player_uuid)
             
             await interaction.followup.send(
                 embed=embed,

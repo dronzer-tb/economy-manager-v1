@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.3.0] - 2025-11-10 - PRODUCTION READY 🎉
+### Fixed
+- Fixed refresh button to use UUID for player lookup
+- EconomyManagementView now stores and uses player UUID
+- Refresh button now correctly fetches updated player data
+
+### Notes
+- All core features working: player selection, currency management, logging
+- All buttons functional: Add/Remove Gems/Coins, Refresh
+- Ready for production deployment
+
 ## [0.2.9] - 2025-11-10
 ### Fixed
 - Fixed "Unread result found" error in update_currency function
