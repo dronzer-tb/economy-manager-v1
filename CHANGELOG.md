@@ -13,6 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.4.1] - 2025-11-10
+### Changed
+- **README.md**: Complete rewrite with comprehensive documentation
+- Updated installation command (removed install.sh, direct setup-interactive.sh)
+- Added detailed usage guide with examples
+- Added troubleshooting section
+- Added feature breakdown and security information
+- Updated badges and version numbers to 0.4.0+
+
+### Documentation
+- Detailed Discord bot setup instructions
+- Configuration guide with Discord ID retrieval
+- Example workflows and commands
+- Project structure documentation
+- Version history summary
+
 ## [0.4.0] - 2025-11-10 - MAJOR UPGRADE 🚀
 ### Added
 - **Pagination System**: Previous/Next buttons to navigate through all players
