@@ -1,6 +1,6 @@
 #!/bin/bash
 # Economy Manager V1 - One-Line Installer
-# Version: 0.2.0
+# Version: 0.2.1
 # Usage: curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install-bot.sh | bash
 
 set -e
@@ -71,8 +71,13 @@ fi
 
 # Clone repository
 git clone "$REPO_URL" "$INSTALL_DIR"
-cd "$INSTALL_DIR"
 echo -e "${GREEN}✅${NC} Repository cloned successfully"
+
+# Change to installation directory
+cd "$INSTALL_DIR" || {
+    echo -e "${RED}❌ Failed to enter directory $INSTALL_DIR${NC}"
+    exit 1
+}
 
 echo ""
 echo -e "${GREEN}Step 3/5:${NC} Installing Python dependencies..."

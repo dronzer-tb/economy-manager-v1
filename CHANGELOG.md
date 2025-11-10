@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.2.1] - 2025-11-10
+### Fixed
+- Fixed install-bot.sh not changing directory after cloning repository
+- Added error handling for directory change operation
+
 ## [0.2.0] - 2025-11-10
 ### Added
 - One-line installer script (install-bot.sh) for automated deployment

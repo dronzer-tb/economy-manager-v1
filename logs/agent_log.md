@@ -279,3 +279,48 @@ Required Columns:
 
 ---
 
+## [2025-11-10T08:35:25.044Z] - HOTFIX - Version: 0.2.0 → 0.2.1
+
+**MCP Servers Used**: time
+**Files Modified**: 
+- install-bot.sh (fixed directory change bug)
+- VERSION (0.2.0 → 0.2.1)
+- bot/__init__.py (version updated)
+- CHANGELOG.md (added 0.2.1 entry)
+- logs/agent_log.md (this entry)
+
+**Version Change**: 0.2.0 → 0.2.1 (PATCH - Bug fix)
+**Tests Run**: N/A (installer script fix)
+**Reasoning**: Fixed critical bug in install-bot.sh where script was not changing into the cloned directory before attempting to install dependencies, causing "requirements.txt not found" error. This is a PATCH version bump as it's a bug fix.
+
+### Changes Made:
+- Added `cd "$INSTALL_DIR"` immediately after cloning repository
+- Added error handling with `|| { echo error; exit 1; }` pattern
+- Moved directory change before success message for better flow
+- Ensures script is in correct directory before pip install
+
+### Bug Details:
+**Issue**: Script cloned repository but stayed in parent directory
+**Error**: `Could not open requirements file: [Errno 2] No such file or directory`
+**Root Cause**: Missing `cd` command between clone and pip install
+**Fix**: Added directory change with error handling
+
+### Testing:
+User reported error after running:
+```bash
+curl -sSL https://raw.githubusercontent.com/dronzer-tb/economy-manager-v1/main/install-bot.sh | bash
+```
+
+Error occurred at Step 3/5 (Installing Python dependencies)
+
+**Fixed Script Flow:**
+1. Clone repository → economy-manager-v1/
+2. **Change directory → cd economy-manager-v1/** (ADDED)
+3. Install dependencies → pip3 install -r requirements.txt
+4. Run setup
+5. Start bot
+
+### Related PRD Section: Section 4.1 - Installation Script
+
+---
+
