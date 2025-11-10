@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.3.1] - 2025-11-10
+### Added
+- **Search Player** button to find players beyond the first 25
+- Player search modal with partial name matching
+- Shows total player count and how many are displayed
+- Automatic selection for single search result
+- Dropdown for multiple search results
+
+### Fixed
+- Fixed limitation showing only first 25 players (A-M)
+- All players now accessible via search feature
+- Better UX with clear instructions when >25 players exist
+
 ## [0.3.0] - 2025-11-10 - PRODUCTION READY 🎉
 ### Fixed
 - Fixed refresh button to use UUID for player lookup

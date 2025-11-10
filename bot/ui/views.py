@@ -12,18 +12,25 @@ import logging
 logger = logging.getLogger('economy_bot')
 
 class PlayerSelectView(ui.View):
-    """View with dropdown to select a player."""
+    """View for selecting a player from dropdown or search."""
     
     def __init__(self, players: List[dict], callback: Callable):
-        super().__init__(timeout=180)  # 3 minute timeout
+        super().__init__(timeout=300)
         self.callback_func = callback
+        self.all_players = players  # Store all players for search
         
-        # Add player select dropdown
+        # Add player select dropdown (first 25)
         self.add_item(PlayerSelect(players, self.on_player_select))
         
     async def on_player_select(self, interaction: discord.Interaction, selected_player: str):
         """Handle player selection."""
         await self.callback_func(interaction, selected_player)
+    
+    @ui.button(label="Search Player", style=discord.ButtonStyle.primary, emoji="🔍")
+    async def search_button(self, interaction: discord.Interaction, button: ui.Button):
+        """Button to search for a player by name."""
+        modal = PlayerSearchModal(self.all_players, self.callback_func)
+        await interaction.response.send_modal(modal)
 
 
 class PlayerSelect(ui.Select):
@@ -269,6 +276,65 @@ class ConfirmationView(ui.View):
             content="❌ Transaction cancelled.",
             view=None
         )
+
+
+class PlayerSearchModal(ui.Modal):
+    """Modal for searching players by name."""
+    
+    def __init__(self, all_players: List[dict], callback: Callable):
+        super().__init__(title="Search Player")
+        self.all_players = all_players
+        self.callback_func = callback
+        
+        # Add search input field
+        self.search_input = ui.TextInput(
+            label="Player Name",
+            placeholder="Enter player name to search...",
+            required=True,
+            min_length=1,
+            max_length=50
+        )
+        self.add_item(self.search_input)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        """Handle search submission."""
+        await interaction.response.defer()
+        
+        search_term = self.search_input.value.lower().strip()
+        
+        # Search for players matching the search term
+        matches = [
+            player for player in self.all_players
+            if search_term in player.get('name', '').lower()
+        ]
+        
+        if not matches:
+            await interaction.followup.send(
+                f"❌ No players found matching '{self.search_input.value}'",
+                ephemeral=True
+            )
+            return
+        
+        if len(matches) == 1:
+            # Only one match, directly select it
+            player_uuid = matches[0].get('uuid')
+            await self.callback_func(interaction, player_uuid)
+        else:
+            # Multiple matches, show dropdown with results
+            view = PlayerSelectView(matches, self.callback_func)
+            await interaction.followup.send(
+                f"**Search Results** ({len(matches)} players found)\nSelect a player:",
+                view=view,
+                ephemeral=True
+            )
+
+
+def create_player_embed(player_name: str, player_data: dict) -> discord.Embed:
+    """
+    Create an embed displaying player economy information.
+    
+    Args:
+```
 
 
 def create_player_embed(player_name: str, player_data: dict) -> discord.Embed:

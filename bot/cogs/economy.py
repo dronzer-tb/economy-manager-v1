@@ -41,8 +41,19 @@ class Economy(commands.Cog):
             # Create and send player selection view
             view = PlayerSelectView(players, self.on_player_selected)
             
+            total_players = len(players)
+            shown_players = min(25, total_players)
+            
+            message = f"**Economy Manager**\n"
+            message += f"📊 Total Players: {total_players}\n"
+            message += f"📋 Showing: First {shown_players} players (A-Z)\n"
+            if total_players > 25:
+                message += f"🔍 Use the **Search Player** button to find others"
+            else:
+                message += f"Select a player from the dropdown:"
+            
             await interaction.followup.send(
-                "**Economy Manager**\nSelect a player to manage:",
+                message,
                 view=view,
                 ephemeral=True
             )
