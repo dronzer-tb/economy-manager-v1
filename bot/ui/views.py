@@ -334,15 +334,7 @@ def create_player_embed(player_name: str, player_data: dict) -> discord.Embed:
     Create an embed displaying player economy information.
     
     Args:
-```
-
-
-def create_player_embed(player_name: str, player_data: dict) -> discord.Embed:
-    """
-    Create an embed displaying player economy information.
-    
-    Args:
-        player_name: Player's name
+        player_name: Player name
         player_data: Dictionary with player data
         
     Returns:

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [0.3.2] - 2025-11-10
+### Fixed
+- Fixed syntax error in views.py (duplicate function definition)
+- Removed broken docstring that caused unterminated string literal error
+- Bot now starts correctly
+
 ## [0.3.1] - 2025-11-10
 ### Added
 - **Search Player** button to find players beyond the first 25
