@@ -32,13 +32,10 @@
 ```bash
 # Clone the repository
 git clone https://github.com/dronzer-tb/economy-manager-v1.git
-cd economy-manager
+cd economy-manager-v1
 
 # Run the installation script
-./install.sh  # Linux/macOS
-
-### Setup
-
+./install.sh  # Linux
 ```bash
 # Run the setup script
 python setup.py
